@@ -1,0 +1,8 @@
+{
+  "name": "Despensa Smart",
+  "description": "Um PWA inteligente para gerenciamento de mantimentos domésticos, controle de estoque e lista de compras automática com sugestões de receitas via IA.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
-import { InventoryItem, FilterState, Category } from './types';
-import { getItems, addItem, updateItem, deleteItem } from './services/storageService';
+import { InventoryItem, FilterState } from './types';
+import { getItems, addItem, updateItem, deleteItem, initializeSampleData } from './services/storageService';
 import { NAV_ITEMS, CATEGORIES } from './constants';
 import InventoryItemCard from './components/InventoryItemCard';
 import AddItemModal from './components/AddItemModal';
@@ -17,6 +18,7 @@ const App: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [darkMode, setDarkMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Filters
   const [filters, setFilters] = useState<FilterState>({
@@ -29,7 +31,10 @@ const App: React.FC = () => {
 
   // Initial Load
   useEffect(() => {
-    setItems(getItems());
+    // Initialize with sample data if empty to show functionality immediately
+    const data = initializeSampleData();
+    setItems(data);
+    setIsLoading(false);
     
     // Check system preference for theme
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -60,7 +65,7 @@ const App: React.FC = () => {
       if (filters.onlyExpiring) matchesStatus = matchesStatus && daysUntilExpiry <= 30;
 
       return matchesSearch && matchesCategory && matchesStatus;
-    }).sort((a, b) => b.quantity - a.quantity);
+    }).sort((a, b) => b.quantity - a.quantity); // Most quantity first by default
   }, [items, filters]);
 
   // Handlers
@@ -89,6 +94,10 @@ const App: React.FC = () => {
     setEditingItem(item);
     setIsModalOpen(true);
   };
+
+  if (isLoading) {
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center text-emerald-600">Carregando...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 pb-24 transition-colors duration-200">
@@ -169,17 +178,15 @@ const App: React.FC = () => {
               <div className="text-center py-20 text-gray-400 flex flex-col items-center">
                 <Filter size={48} className="mx-auto mb-4 opacity-20" />
                 <p>Nenhum item encontrado.</p>
-                {items.length === 0 && (
-                   <button 
-                    onClick={() => {
-                        setEditingItem(null);
-                        setIsModalOpen(true);
-                    }}
-                    className="mt-4 text-primary font-medium hover:underline"
-                   >
-                       Adicione seu primeiro item
-                   </button>
-                )}
+                <button 
+                  onClick={() => {
+                      setEditingItem(null);
+                      setIsModalOpen(true);
+                  }}
+                  className="mt-4 text-primary font-medium hover:underline"
+                >
+                    Adicione seu primeiro item
+                </button>
               </div>
             ) : (
               filteredItems.map(item => (

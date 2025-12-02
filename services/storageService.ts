@@ -1,4 +1,5 @@
-import { InventoryItem } from '../types';
+
+import { InventoryItem, Category, Unit } from '../types';
 
 const STORAGE_KEY = 'despensa_smart_data';
 
@@ -28,7 +29,7 @@ export const addItem = (item: Omit<InventoryItem, 'id' | 'addedAt' | 'updatedAt'
     addedAt: Date.now(),
     updatedAt: Date.now()
   };
-  const updatedItems = [newItem, ...items]; // Newest first temporarily, but UI sorts by Qty
+  const updatedItems = [newItem, ...items];
   saveItems(updatedItems);
   return updatedItems;
 };
@@ -64,7 +65,60 @@ export const calculateStatus = (item: InventoryItem) => {
 
 export const getShoppingList = (items: InventoryItem[]): InventoryItem[] => {
   return items.filter(item => {
-    // Logic: Add to list if quantity is 1 or less OR quantity is below/equal minStock
     return item.quantity <= 1 || item.quantity <= item.minStock;
   });
+};
+
+// Dados de exemplo para inicialização
+export const initializeSampleData = (): InventoryItem[] => {
+  const currentItems = getItems();
+  if (currentItems.length > 0) return currentItems;
+
+  const today = new Date();
+  const nextMonth = new Date(today);
+  nextMonth.setDate(today.getDate() + 30);
+  const nextWeek = new Date(today);
+  nextWeek.setDate(today.getDate() + 5);
+
+  const sampleItems: InventoryItem[] = [
+    {
+      id: crypto.randomUUID(),
+      name: "Arroz Branco",
+      category: Category.PANTRY,
+      quantity: 5,
+      unit: Unit.KG,
+      expiryDate: nextMonth.toISOString().split('T')[0],
+      location: "Despensa",
+      minStock: 2,
+      addedAt: Date.now(),
+      updatedAt: Date.now()
+    },
+    {
+      id: crypto.randomUUID(),
+      name: "Leite Integral",
+      category: Category.FRIDGE,
+      quantity: 1,
+      unit: Unit.CX,
+      expiryDate: nextWeek.toISOString().split('T')[0],
+      location: "Geladeira",
+      minStock: 3,
+      addedAt: Date.now(),
+      updatedAt: Date.now()
+    },
+    {
+      id: crypto.randomUUID(),
+      name: "Sabão em Pó",
+      category: Category.CLEANING,
+      quantity: 0.5,
+      unit: Unit.KG,
+      expiryDate: "2025-12-31",
+      location: "Lavanderia",
+      minStock: 1,
+      addedAt: Date.now(),
+      updatedAt: Date.now()
+    }
+  ];
+
+  saveItems(sampleItems);
+  return sampleItems;
 };

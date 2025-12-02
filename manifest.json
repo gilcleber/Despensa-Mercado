@@ -1,11 +1,13 @@
+
 {
   "name": "Despensa Smart",
   "short_name": "Despensa",
+  "description": "Controle de mantimentos domésticos inteligente",
   "start_url": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#10b981",
-  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/3082/3082060.png",

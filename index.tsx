@@ -11,13 +11,26 @@ if (!rootElement) {
 
 const root = ReactDOM.createRoot(rootElement);
 
-root.render(
-  <React.StrictMode>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
-  </React.StrictMode>
-);
+// Ensure loader is removed once React takes over if needed
+const removeLoader = () => {
+    const loader = document.querySelector('.initial-loader');
+    if (loader) {
+        loader.remove();
+    }
+};
+
+try {
+    root.render(
+      <React.StrictMode>
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>
+      </React.StrictMode>
+    );
+    // Note: render is async in React 18, so loader removal is handled by App.tsx replacement or explicit logic
+} catch (e) {
+    console.error("Critical Render Error", e);
+}
 
 // Service Worker Registration for PWA
 if ('serviceWorker' in navigator) {

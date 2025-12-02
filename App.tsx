@@ -29,17 +29,41 @@ const App: React.FC = () => {
   });
   const [showFilters, setShowFilters] = useState(false);
 
-  // Initial Load
+  // Initial Load with Safety Timeout
   useEffect(() => {
-    // Initialize with sample data if empty to show functionality immediately
-    const data = initializeSampleData();
-    setItems(data);
-    setIsLoading(false);
-    
+    let mounted = true;
+
+    const loadData = () => {
+      try {
+        const data = initializeSampleData();
+        if (mounted) setItems(data);
+      } catch (e) {
+        console.error("Init error", e);
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
+    };
+
+    // Attempt load immediately
+    loadData();
+
     // Check system preference for theme
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setDarkMode(true);
+      if (mounted) setDarkMode(true);
     }
+
+    // Safety timeout: force loading to finish after 3 seconds even if something hangs
+    const timeout = setTimeout(() => {
+      if (mounted && isLoading) {
+        console.warn("Forcing loading end due to timeout");
+        setIsLoading(false);
+      }
+    }, 3000);
+
+    return () => {
+      mounted = false;
+      clearTimeout(timeout);
+    };
   }, []);
 
   // Theme Effect
@@ -53,9 +77,10 @@ const App: React.FC = () => {
 
   // Derived State: Filtered & Sorted Items
   const filteredItems = useMemo(() => {
+    if (!items) return [];
     return items.filter(item => {
-      const matchesSearch = item.name.toLowerCase().includes(filters.search.toLowerCase()) || 
-                            item.location.toLowerCase().includes(filters.search.toLowerCase());
+      const matchesSearch = (item.name || '').toLowerCase().includes(filters.search.toLowerCase()) || 
+                            (item.location || '').toLowerCase().includes(filters.search.toLowerCase());
       const matchesCategory = filters.category ? item.category === filters.category : true;
       
       let matchesStatus = true;
@@ -65,7 +90,7 @@ const App: React.FC = () => {
       if (filters.onlyExpiring) matchesStatus = matchesStatus && daysUntilExpiry <= 30;
 
       return matchesSearch && matchesCategory && matchesStatus;
-    }).sort((a, b) => b.quantity - a.quantity); // Most quantity first by default
+    }).sort((a, b) => b.quantity - a.quantity);
   }, [items, filters]);
 
   // Handlers
@@ -96,7 +121,7 @@ const App: React.FC = () => {
   };
 
   if (isLoading) {
-    return <div className="min-h-screen bg-gray-50 flex items-center justify-center text-emerald-600">Carregando...</div>;
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center text-emerald-600">Carregando seus dados...</div>;
   }
 
   return (

@@ -8,7 +8,7 @@
     <meta name="description" content="Controle de mantimentos e lista de compras inteligente" />
     <meta name="theme-color" content="#10b981" />
     
-    <!-- PWA Manifest: Must be a direct link, not base64 for best compatibility -->
+    <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json" />
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3082/3082060.png">
     
@@ -33,9 +33,27 @@
       }
     </script>
     
-    <!-- Polyfill for process.env to prevent crash in browser -->
+    <!-- Polyfill for process.env -->
     <script>
       window.process = window.process || { env: { API_KEY: '' } };
+    </script>
+
+    <!-- Global Error Handler -->
+    <script>
+      window.onerror = function(message, source, lineno, colno, error) {
+        console.error("Global Error:", message);
+        var root = document.getElementById('root');
+        if (root) {
+           // Only show if the spinner is still there (meaning app didn't load)
+           if (root.querySelector('.initial-loader')) {
+             root.innerHTML = '<div style="padding:20px; color:#ef4444; font-family:sans-serif; text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh;">' +
+               '<h2 style="font-size:20px; margin-bottom:10px;">Erro na Inicialização</h2>' +
+               '<p style="color:#374151;">' + message + '</p>' +
+               '<button onclick="localStorage.clear(); window.location.reload()" style="margin-top:20px; padding:10px 20px; background:#10b981; color:white; border:none; border-radius:8px;">Limpar Dados e Tentar Novamente</button>' +
+             '</div>';
+           }
+        }
+      };
     </script>
 
     <style>

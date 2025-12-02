@@ -7,6 +7,7 @@ import AddItemModal from './components/AddItemModal';
 import ShoppingList from './components/ShoppingList';
 import RecipeSuggester from './components/RecipeSuggester';
 import InventoryStats from './components/InventoryStats';
+import InstallButton from './components/InstallButton';
 import { Search, Filter, SlidersHorizontal, Sun, Moon, Plus } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -55,12 +56,11 @@ const App: React.FC = () => {
       let matchesStatus = true;
       if (filters.onlyLowStock) matchesStatus = matchesStatus && item.quantity <= item.minStock;
       
-      // Expiring logic repeats slightly from Service, but kept simple here for filter
       const daysUntilExpiry = Math.ceil((new Date(item.expiryDate).getTime() - new Date().getTime()) / (86400000));
       if (filters.onlyExpiring) matchesStatus = matchesStatus && daysUntilExpiry <= 30;
 
       return matchesSearch && matchesCategory && matchesStatus;
-    }).sort((a, b) => b.quantity - a.quantity); // Requirements: Higher quantity on top
+    }).sort((a, b) => b.quantity - a.quantity);
   }, [items, filters]);
 
   // Handlers
@@ -91,7 +91,9 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 pb-20">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 pb-24 transition-colors duration-200">
+      <InstallButton />
+      
       {/* Header */}
       <header className="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-gray-200 dark:border-slate-800 px-4 py-3 shadow-sm transition-colors">
         <div className="flex justify-between items-center mb-2">
@@ -108,7 +110,7 @@ const App: React.FC = () => {
 
         {/* Search Bar (Only on inventory view) */}
         {view === 'inventory' && (
-          <div className="flex gap-2">
+          <div className="flex gap-2 animate-in fade-in slide-in-from-top-1">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
               <input 
@@ -162,11 +164,22 @@ const App: React.FC = () => {
       {/* Main Content Area */}
       <main className="max-w-3xl mx-auto pt-4 px-4">
         {view === 'inventory' && (
-          <div className="space-y-1">
+          <div className="space-y-1 pb-20">
             {filteredItems.length === 0 ? (
-              <div className="text-center py-20 text-gray-400">
+              <div className="text-center py-20 text-gray-400 flex flex-col items-center">
                 <Filter size={48} className="mx-auto mb-4 opacity-20" />
                 <p>Nenhum item encontrado.</p>
+                {items.length === 0 && (
+                   <button 
+                    onClick={() => {
+                        setEditingItem(null);
+                        setIsModalOpen(true);
+                    }}
+                    className="mt-4 text-primary font-medium hover:underline"
+                   >
+                       Adicione seu primeiro item
+                   </button>
+                )}
               </div>
             ) : (
               filteredItems.map(item => (
@@ -196,7 +209,7 @@ const App: React.FC = () => {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 flex justify-around items-center py-2 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-gray-200 dark:border-slate-800 flex justify-around items-center py-2 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50">
         {NAV_ITEMS.map((nav) => {
           const Icon = nav.icon;
           const isActive = view === nav.id;
@@ -210,7 +223,7 @@ const App: React.FC = () => {
                    setEditingItem(null);
                    setIsModalOpen(true);
                  }}
-                 className="relative -top-5 bg-primary text-white p-4 rounded-full shadow-lg shadow-emerald-500/30 transform transition active:scale-90"
+                 className="relative -top-6 bg-gradient-to-tr from-emerald-400 to-teal-600 text-white p-4 rounded-full shadow-lg shadow-emerald-500/30 transform transition active:scale-90 hover:shadow-xl hover:-translate-y-7"
                >
                  <Plus size={24} />
                </button>
@@ -221,11 +234,11 @@ const App: React.FC = () => {
             <button
               key={nav.id}
               onClick={() => setView(nav.id)}
-              className={`flex flex-col items-center gap-1 p-2 min-w-[64px] transition ${
+              className={`flex flex-col items-center gap-1 p-2 min-w-[64px] transition active:scale-95 ${
                 isActive ? 'text-primary' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
               }`}
             >
-              <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
+              <Icon size={24} strokeWidth={isActive ? 2.5 : 2} className={isActive ? 'animate-bounce-short' : ''} />
               <span className="text-[10px] font-medium">{nav.label}</span>
             </button>
           );

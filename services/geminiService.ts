@@ -1,12 +1,23 @@
 import { GoogleGenAI } from "@google/genai";
 import { InventoryItem } from "../types";
 
-// Initialize Gemini Client
-// In a real production app, ensure this key is secure or proxy via backend.
-// For this PWA demo, we use the env variable directly as instructed.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Helper to safely get the client
+const getAiClient = () => {
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) {
+    console.warn("API Key not found. Gemini features will be disabled.");
+    return null;
+  }
+  return new GoogleGenAI({ apiKey });
+};
 
 export const generateRecipeSuggestion = async (items: InventoryItem[]) => {
+  const ai = getAiClient();
+  
+  if (!ai) {
+    return "Configuração de API necessária. Por favor, verifique se a chave da API (API_KEY) está configurada no ambiente.";
+  }
+
   if (items.length === 0) {
     return "Adicione itens ao seu estoque para que eu possa sugerir uma receita!";
   }
@@ -24,18 +35,18 @@ export const generateRecipeSuggestion = async (items: InventoryItem[]) => {
     Por favor, sugira uma receita detalhada que eu possa fazer utilizando PRINCIPALMENTE esses ingredientes.
     Se precisar de ingredientes básicos extras (água, sal, óleo, temperos comuns), pode assumir que eu tenho.
     
-    Formato da resposta (use Markdown):
-    ## Nome da Receita
-    **Tempo de preparo:** X min
-    **Dificuldade:** Fácil/Médio/Difícil
+    Formato da resposta:
     
-    ### Ingredientes
+    TÍTULO DA RECEITA
+    Tempo de preparo: X min | Dificuldade: Fácil/Médio/Difícil
+    
+    INGREDIENTES
     - Lista...
     
-    ### Modo de Preparo
+    MODO DE PREPARO
     1. Passo...
     
-    ### Dica do Chef
+    DICA DO CHEF
     Uma dica extra.
   `;
 
@@ -44,7 +55,7 @@ export const generateRecipeSuggestion = async (items: InventoryItem[]) => {
       model: 'gemini-2.5-flash',
       contents: prompt,
       config: {
-        thinkingConfig: { thinkingBudget: 0 } // Low latency preferred for UI
+        thinkingConfig: { thinkingBudget: 0 }
       }
     });
 

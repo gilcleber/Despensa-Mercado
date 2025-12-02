@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { InventoryItem } from '../types';
 import { generateRecipeSuggestion } from '../services/geminiService';
-import { ChefHat, Loader2, RefreshCw } from 'lucide-react';
-import ReactMarkdown from 'react-markdown'; // Assuming generic standard renderer, but since we can't import external untested, we will do basic rendering or text-pre-wrap
+import { ChefHat, Loader2, RefreshCw, AlertCircle } from 'lucide-react';
 
 interface Props {
   items: InventoryItem[];
@@ -52,10 +51,12 @@ const RecipeSuggester: React.FC<Props> = ({ items }) => {
 
       {recipe && !loading && (
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 border border-gray-100 dark:border-slate-700 animate-fade-in">
-          <div className="prose dark:prose-invert max-w-none whitespace-pre-line">
+          {/* Simple text formatting replacement for Markdown */}
+          <div className="prose dark:prose-invert max-w-none whitespace-pre-wrap font-sans text-gray-700 dark:text-gray-300 leading-relaxed">
             {recipe}
           </div>
-          <div className="mt-6 flex justify-center">
+          
+          <div className="mt-8 pt-4 border-t border-gray-100 dark:border-slate-700 flex justify-center">
             <button
               onClick={handleGenerate}
               className="text-primary hover:text-emerald-700 font-medium flex items-center gap-2 px-4 py-2 border border-primary rounded-full hover:bg-emerald-50 dark:hover:bg-slate-700 transition"

@@ -102,6 +102,7 @@ export const initializeSampleData = (): InventoryItem[] => {
     const nextWeek = new Date(today);
     nextWeek.setDate(today.getDate() + 5);
 
+    // Fix: Added missing 'price' property to sample items to satisfy InventoryItem interface
     const sampleItems: InventoryItem[] = [
       {
         id: '1',
@@ -109,6 +110,7 @@ export const initializeSampleData = (): InventoryItem[] => {
         category: Category.PANTRY,
         quantity: 5,
         unit: Unit.KG,
+        price: 25.90,
         expiryDate: nextMonth.toISOString().split('T')[0],
         location: "Despensa",
         minStock: 2,
@@ -121,6 +123,7 @@ export const initializeSampleData = (): InventoryItem[] => {
         category: Category.FRIDGE,
         quantity: 1,
         unit: Unit.CX,
+        price: 5.49,
         expiryDate: nextWeek.toISOString().split('T')[0],
         location: "Geladeira",
         minStock: 3,
@@ -133,6 +136,7 @@ export const initializeSampleData = (): InventoryItem[] => {
         category: Category.CLEANING,
         quantity: 0.5,
         unit: Unit.KG,
+        price: 18.00,
         expiryDate: "2025-12-31",
         location: "Lavanderia",
         minStock: 1,

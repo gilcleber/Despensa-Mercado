@@ -11,11 +11,11 @@ if (!rootElement) {
 
 const root = ReactDOM.createRoot(rootElement);
 
-// Ensure loader is removed once React takes over if needed
 const removeLoader = () => {
-    const loader = document.querySelector('.initial-loader');
+    const loader = document.getElementById('main-loader');
     if (loader) {
-        loader.remove();
+        loader.style.opacity = '0';
+        setTimeout(() => loader.remove(), 400);
     }
 };
 
@@ -27,9 +27,13 @@ try {
         </ErrorBoundary>
       </React.StrictMode>
     );
-    // Note: render is async in React 18, so loader removal is handled by App.tsx replacement or explicit logic
+    // Remove o loader após o primeiro frame de renderização
+    requestAnimationFrame(() => {
+        setTimeout(removeLoader, 200);
+    });
 } catch (e) {
     console.error("Critical Render Error", e);
+    removeLoader();
 }
 
 // Service Worker Registration for PWA
@@ -37,7 +41,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js')
       .then(registration => {
-        console.log('SW registered with scope:', registration.scope);
+        console.log('SW registered');
       })
       .catch(error => {
         console.log('SW registration failed:', error);

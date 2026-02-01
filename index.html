@@ -6,13 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <title>Despensa Smart</title>
     <meta name="description" content="Controle de mantimentos e lista de compras inteligente" />
-    <meta name="theme-color" content="#10b981" />
+    <meta name="theme-color" content="#1b5e20" />
     
-    <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json" />
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3082/3082060.png">
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -20,83 +18,52 @@
         theme: {
           extend: {
             colors: {
-              primary: '#10b981', // emerald-500
-              secondary: '#3b82f6', // blue-500
-              danger: '#ef4444', // red-500
-              warning: '#f59e0b', // amber-500
-            },
-            padding: {
-              'safe': 'env(safe-area-inset-bottom)'
+              primary: '#1b5e20',
+              secondary: '#388e3c',
+              danger: '#d32f2f',
+              warning: '#fbc02d',
             }
           }
         }
       }
     </script>
     
-    <!-- Polyfill for process.env -->
     <script>
-      window.process = window.process || { env: { API_KEY: '' } };
-    </script>
-
-    <!-- Global Error Handler -->
-    <script>
-      window.onerror = function(message, source, lineno, colno, error) {
-        console.error("Global Error:", message);
-        var root = document.getElementById('root');
-        if (root) {
-           // Only show if the spinner is still there (meaning app didn't load)
-           if (root.querySelector('.initial-loader')) {
-             root.innerHTML = '<div style="padding:20px; color:#ef4444; font-family:sans-serif; text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh;">' +
-               '<h2 style="font-size:20px; margin-bottom:10px;">Erro na Inicialização</h2>' +
-               '<p style="color:#374151;">' + message + '</p>' +
-               '<button onclick="localStorage.clear(); window.location.reload()" style="margin-top:20px; padding:10px 20px; background:#10b981; color:white; border:none; border-radius:8px;">Limpar Dados e Tentar Novamente</button>' +
-             '</div>';
-           }
-        }
-      };
+      window.process = { env: { API_KEY: '' } };
     </script>
 
     <style>
-      /* Smooth scrolling */
       html { scroll-behavior: smooth; }
-      /* Hide scrollbar for clean UI in lists */
-      .no-scrollbar::-webkit-scrollbar { display: none; }
-      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-      body { -webkit-tap-highlight-color: transparent; }
-      
-      /* Loading Spinner for initial load */
+      body { -webkit-tap-highlight-color: transparent; font-family: sans-serif; }
       .initial-loader {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        width: 100vw;
-        background-color: #f9fafb;
-        color: #10b981;
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        height: 100vh; width: 100vw; background-color: #f9fafb; color: #1b5e20;
+        position: fixed; top: 0; left: 0; z-index: 9999;
+        transition: opacity 0.4s ease-out;
       }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .spinner { width: 40px; height: 40px; border: 4px solid #e5e7eb; border-top-color: #1b5e20; border-radius: 50%; animation: spin 1s linear infinite; }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
-    "recharts": "https://aistudiocdn.com/recharts@^3.5.1"
-  }
-}
-</script>
-</head>
-  <body class="bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-gray-100 transition-colors duration-200 selection:bg-emerald-500 selection:text-white">
-    <div id="root">
-        <!-- Content visible before React loads -->
-        <div class="initial-loader">
-            <svg class="animate-spin h-10 w-10 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-        </div>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.2.0",
+        "react/": "https://esm.sh/react@18.2.0/",
+        "react-dom": "https://esm.sh/react-dom@18.2.0",
+        "react-dom/": "https://esm.sh/react-dom@18.2.0/",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "lucide-react": "https://esm.sh/lucide-react@0.344.0?deps=react@18.2.0,react-dom@18.2.0",
+        "@google/genai": "https://esm.sh/@google/genai@1.30.0"
+      }
+    }
+    </script>
+  </head>
+  <body class="bg-gray-100 dark:bg-slate-900 text-gray-900 dark:text-gray-100">
+    <div id="root"></div>
+    <div class="initial-loader" id="main-loader">
+        <div class="spinner"></div>
+        <p style="margin-top: 15px; font-weight: 600;">Carregando Despensa...</p>
     </div>
   </body>
 </html>

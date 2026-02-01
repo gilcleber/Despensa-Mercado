@@ -1,9 +1,10 @@
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { ErrorInfo, ReactNode, Component } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 interface Props {
-  children: ReactNode;
+  // Children is the React node to be rendered within the error boundary
+  children?: ReactNode;
 }
 
 interface State {
@@ -11,11 +12,19 @@ interface State {
   error: Error | null;
 }
 
+/**
+ * Error Boundary component to catch rendering errors in the component tree.
+ */
+// Fix: Extending Component directly from 'react' with defined types for Props and State to ensure 'this.props' is correctly typed
 class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false,
-    error: null
-  };
+  constructor(props: Props) {
+    // Call super(props) to correctly initialize the base class and ensure this.props is available
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null
+    };
+  }
 
   public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
@@ -26,7 +35,12 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public render() {
-    if (this.state.hasError) {
+    // Accessing state and props from the Component instance
+    // By extending Component<Props, State>, 'this.props' and 'this.state' are correctly inherited
+    const { hasError, error } = this.state;
+    const { children } = this.props;
+
+    if (hasError) {
       return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
           <div className="bg-white p-8 rounded-2xl shadow-xl max-w-sm w-full border border-red-100">
@@ -37,7 +51,7 @@ class ErrorBoundary extends Component<Props, State> {
             </p>
             <div className="bg-gray-100 p-3 rounded mb-6 text-left overflow-auto max-h-32">
                 <code className="text-xs text-red-600 font-mono break-all">
-                    {this.state.error?.message}
+                    {error?.message}
                 </code>
             </div>
             <button
@@ -56,7 +70,7 @@ class ErrorBoundary extends Component<Props, State> {
       );
     }
 
-    return this.props.children;
+    return children;
   }
 }
 

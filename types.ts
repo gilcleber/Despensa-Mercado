@@ -1,3 +1,4 @@
+
 export enum Unit {
   KG = 'kg',
   G = 'g',
@@ -24,9 +25,12 @@ export interface InventoryItem {
   category: Category | string;
   quantity: number;
   unit: Unit | string;
-  expiryDate: string; // ISO Date string YYYY-MM-DD
+  price: number;
+  expiryDate: string;
   location: string;
   minStock: number;
+  observation?: string;
+  inCart?: boolean;
   addedAt: number;
   updatedAt: number;
 }
@@ -36,10 +40,4 @@ export interface FilterState {
   category: string;
   onlyLowStock: boolean;
   onlyExpiring: boolean;
-}
-
-export type ThemeMode = 'light' | 'dark';
-
-export interface ShoppingItem extends InventoryItem {
-  toBuy: number;
 }

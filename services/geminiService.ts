@@ -1,23 +1,16 @@
+
 import { GoogleGenAI } from "@google/genai";
 import { InventoryItem } from "../types";
 
-// Helper to safely get the client
-const getAiClient = () => {
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) {
-    console.warn("API Key not found. Gemini features will be disabled.");
-    return null;
-  }
-  return new GoogleGenAI({ apiKey });
-};
-
+/**
+ * Generates a recipe suggestion based on the provided inventory items.
+ * Uses Gemini API to process the ingredients and return a recipe.
+ */
 export const generateRecipeSuggestion = async (items: InventoryItem[]) => {
-  const ai = getAiClient();
+  // Always initialize right before making an API call to ensure it uses the most up-to-date API key
+  // The API key must be obtained exclusively from process.env.API_KEY
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
-  if (!ai) {
-    return "Configuração de API necessária. Por favor, verifique se a chave da API (API_KEY) está configurada no ambiente.";
-  }
-
   if (items.length === 0) {
     return "Adicione itens ao seu estoque para que eu possa sugerir uma receita!";
   }
@@ -51,14 +44,17 @@ export const generateRecipeSuggestion = async (items: InventoryItem[]) => {
   `;
 
   try {
+    // Using 'gemini-3-flash-preview' for basic text tasks like recipe generation
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-flash-preview',
       contents: prompt,
       config: {
+        // Disable thinking budget for lower latency on basic tasks
         thinkingConfig: { thinkingBudget: 0 }
       }
     });
 
+    // Directly access the .text property from GenerateContentResponse (not a method)
     return response.text || "Desculpe, não consegui gerar uma receita agora.";
   } catch (error) {
     console.error("Error generating recipe:", error);
